@@ -1,0 +1,58 @@
+<template>
+  <div class="slds-card slds-theme_shade">
+    <div if:true={isLoading}>
+      <div style="height: 150px; display: grid; place-content: center;">
+        <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
+      </div>
+    </div> 
+
+    <div if:false={isLoading}>
+      <div class="slds-notify slds-notify_alert slds-alert_warning" role="alert">
+        <span class="slds-assistive-text">warning</span>
+        <span class="slds-icon_container slds-icon-utility-warning slds-var-m-right_x-small"
+          title="Description of icon when needed">
+          <svg class="slds-icon slds-icon_x-small" aria-hidden="true">
+          </svg>
+        </span>
+        <h2 style="color: white;">{message}&nbsp;</h2>
+        <br/>
+        <h3 style="color: white;">{lastConsult}&nbsp;</h3>
+      </div>
+
+      <div class="slds-grid">
+        <div style="height: 200px; width: 100%">
+          <c-data-storage-alert 
+            clear-data={clearData}>
+          </c-data-storage-alert>
+        </div>
+        <div style="height: 200px; width: 100%">
+          <c-file-storage-alert
+            is-refresh={refreshNow}>
+          </c-file-storage-alert>
+        </div>
+      </div>
+    </div>
+
+    <div class="slds-m-top_small slds-m-bottom_medium">
+      <lightning-button 
+        variant="brand" 
+        label="Refresh" 
+        title="Refresh action" 
+        onclick={refresh} 
+        class="slds-align_absolute-center x-small">
+      </lightning-button>
+    </div>
+
+    <div>
+      <lightning-combobox
+        name="Clear Options"
+        label="Options"
+        value={value}
+        placeholder="Select Option"
+        options={options}
+        onchange={handleChange} >
+      </lightning-combobox>
+    </div>
+    
+  </div> 
+</template>
