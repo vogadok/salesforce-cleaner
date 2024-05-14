@@ -1,14 +1,20 @@
 import { LightningElement, api, track} from 'lwc'
 import chartjs from '@salesforce/resourceUrl/ChartJs'; 
-import { loadScript } from 'lightning/platformResourceLoader';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import { loadScript } from 'lightning/platformResourceLoader';
+import getAccounts from '@salesforce/apex/StorageAlertController.getAccountsByType';
+import deleteAccounts from '@salesforce/apex/StorageAlertController.deleteAccounts';
 import getLimits from '@salesforce/apex/StorageAlertController.getLimits';
 
-export default class DataStorageAlert extends LightningElement {
+
+export default class AccountStorage extends LightningElement {
+
     chart;
 	chartjsInitialized = false;
-	@api clearData;
-	config={
+
+    @api clearAccounts;
+
+    config={
 		type : 'doughnut',
 		data :{
 			datasets :[{
@@ -41,43 +47,45 @@ export default class DataStorageAlert extends LightningElement {
 	}
 
     async init(){
-		this.runGetLimits();
+		this.runGetAccounts();
     }
 
-	runClearData(res){
-		this.updateChart(res.remaining, 'Remaining');
-        this.updateChart(res.max, 'Max');
-		console.log('runClearData');
-	}
+    runGetAccounts(){
+        getAccounts({accountType: 'Customer - Direct'})
+            .then(accounts => {
+                if(accounts){
+                    console.log('res:', accounts);
+                    console.log('this.clearAccounts:', this.clearAccounts);
 
-    runGetLimits(){
-        getLimits({storageName:'DataStorageMB'})
-			.then(res => {
-				if (res) {
-					if(this.clearData == true){
-						this.runClearData(res);
+                    if(this.clearAccounts == true){
+                        this.runDeleteAccounts(accounts);
 					}else{
-						this.updateChart(1, 'Remaining');
-						this.updateChart(5, 'Max');
+                        const size = accounts.length;
+						this.updateChart(size, 'Existing');
 					}
-				}
-			})
-			.catch(err => {
-				console.log('err: ' + JSON.stringify(res));
-			})
-	}
+                }
+            }).catch(err => {
+                console.log('err: ' + accounts);
+            })
+    }
+
+    runDeleteAccounts(accounts){
+        deleteAccounts({accountsToDelete: accounts})
+    }
 
     renderedCallback(){
         if(this.chartjsInitialized){
-         return;
+            return;
         }
         this.chartjsInitialized = true;
 
         Promise.all([
-            loadScript(this,chartjs)
+            loadScript(this, chartjs)
         ]).then(() =>{
-            const ctx = this.template.querySelector('canvas.donut')
-            .getContext('2d');
+            const ctx = this.template.querySelector('canvas.donut').getContext('2d');
+
+            console.log(ctx);
+
             this.chart = new window.Chart(ctx, this.config);
         }).catch(error =>{
             this.dispatchEvent(
@@ -90,6 +98,7 @@ export default class DataStorageAlert extends LightningElement {
         });
 	}
 
+   
 	@api
 	updateChart(count,label){
 		this.chart.data.labels.push(label);

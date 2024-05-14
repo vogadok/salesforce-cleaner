@@ -11,6 +11,7 @@ export default class CleanerAlert extends LightningElement {
 	@track isLoading = true;
 	isRefresh = false;
 	clearData = false;
+	clearAccounts = false;
 
 	connectedCallback() {
 		this.init();
@@ -27,7 +28,7 @@ export default class CleanerAlert extends LightningElement {
             { label: 'Clear Only Data', value: 'Clear Only Data' },
             { label: 'Clear Only Files', value: 'Clear Only Files' },
 			{ label: 'Clear Files and Data', value: 'Clear Files and Data' },
-			{ label: 'Clear All', value: 'Clear All' },
+			{ label: 'Clear Accounts', value: 'Clear Accounts' },
         ];
     }
 
@@ -40,6 +41,14 @@ export default class CleanerAlert extends LightningElement {
 				this.isLoading = false;
 			}, 2000);
 		}
+
+		if(this.value == 'Clear Accounts'){
+			this.isLoading = true;
+			this.clearAccounts = true;
+			setTimeout(() => {
+				this.isLoading = false;
+			}, 2000);
+		}
     }
 
 	refresh(){
@@ -47,6 +56,7 @@ export default class CleanerAlert extends LightningElement {
 		this.isLoading = true;
 		this.showBannerAlert();
 		setTimeout(() => {
+			this.clearAccounts = false;
 			this.clearData = false;
 			this.isLoading = false;
 		}, 2000);
@@ -84,17 +94,17 @@ export default class CleanerAlert extends LightningElement {
 		})
 	}
 
-	updateChart(count, label) {
-		if (!this.chart.data.labels.includes(label)) {
-			this.chart.data.labels.push(label);
-			this.chart.data.datasets.forEach((dataset) => {
-				dataset.data.push(count);
-			});
-			this.chart.update();
-		} else {
-			console.log(`Value '${label}' already exists in the chart.`);
-		}
-	}
+	// updateChart(count, label) {
+	// 	if (!this.chart.data.labels.includes(label)) {
+	// 		this.chart.data.labels.push(label);
+	// 		this.chart.data.datasets.forEach((dataset) => {
+	// 			dataset.data.push(count);
+	// 		});
+	// 		this.chart.update();
+	// 	} else {
+	// 		console.log(`Value '${label}' already exists in the chart.`);
+	// 	}
+	// }
 
 	formatDate(dateString) {
 		const options = { 

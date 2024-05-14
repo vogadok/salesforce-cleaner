@@ -25,6 +25,48 @@ public with sharing class StorageAlertController {
         return result;
     }
 
+    @AuraEnabled
+    public static List<Account> getAccountsByType(String accountType){ 
+        return [SELECT Id, Name, Type FROM Account WHERE Type =: accountType];
+    }
+
+    // @AuraEnabled
+    // public static void deleteAccounts(List<Account> accountsToDelete){
+    //     try {
+    //         delete accountsToDelete;
+    //     } catch (Exception e) {
+    //         throw e;
+    //     }
+    // }
+
+    @AuraEnabled
+    public static void deleteAccounts(List<Account> accountsToDelete){
+        try {
+            Set<Id> accountIds = new Set<Id>();
+            for (Account acc : accountsToDelete) {
+                accountIds.add(acc.Id);
+            }
+            
+            List<Case> casesToUpdate = [SELECT Id, AccountId FROM Case WHERE AccountId IN :accountIds];
+            System.debug('casesToUpdate ' + JSON.serialize(casesToUpdate));
+
+            for (Case c : casesToUpdate) {
+                c.AccountId = null;
+            }
+
+            System.debug('casesToUpdate after for' + JSON.serialize(casesToUpdate));
+
+            
+            update casesToUpdate;
+            
+            delete accountsToDelete;
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+
+
     public class OrgLimitDTO{
         @AuraEnabled public String limit_name;
         @AuraEnabled public Decimal remaining;

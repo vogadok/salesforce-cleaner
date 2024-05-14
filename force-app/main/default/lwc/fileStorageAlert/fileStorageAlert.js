@@ -25,7 +25,7 @@ export default class FileStorageAlert extends LightningElement {
 			labels:[]
 		},
 		options: {
-			responsive : true,
+			//responsive : true,
 			maintainAspectRatio: false,
 			legend : {
 				position :'right'
